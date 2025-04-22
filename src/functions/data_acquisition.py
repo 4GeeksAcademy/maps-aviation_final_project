@@ -1,6 +1,7 @@
 '''Functions to download extract and parse data.'''
 
 import io
+import glob
 import zipfile
 
 import requests
@@ -59,3 +60,22 @@ def download_ontime_data(links:list) -> None:
         response=requests.get(complete_link, timeout=10)
         archive=zipfile.ZipFile(io.BytesIO(response.content))
         archive.extractall('../data/raw/')
+
+
+def read_asc_datafiles(n_files:int) -> pd.DataFrame:
+    '''Reads .asc files from raw data directory, combines into
+    pandas dataframe.'''
+
+    data_dfs=[]
+    asc_files=glob.glob('../data/raw/*.asc')
+
+    for asc_file in asc_files[:n_files]:
+        print(asc_file)
+
+        data_df=pd.read_table(asc_file, sep='|', low_memory=False)
+        data_dfs.append(data_df)
+
+    data_df=pd.concat(data_dfs, axis=0)
+
+    return data_df
+

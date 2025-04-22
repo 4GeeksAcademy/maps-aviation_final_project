@@ -1,7 +1,4 @@
 __pycache__
 .vscode
-data/interim
-data/processed
-data/raw/*mdb
-data/raw/*.asc
+data
 models
