@@ -81,42 +81,13 @@ def read_asc_datafiles(n_files:int) -> pd.DataFrame:
 
     return data_df
 
-def download_airplane_regis(url: str, extract_to: str = "../data/raw/") -> pd.DataFrame:
-    # Step 1: Scrape the FAA page to get the download link
-    response = requests.get(url, timeout=10)
-    response.raise_for_status()
+def download_airplane_regis(download_url: str, extract_to: str = "../data/raw/") -> None:
+    
+        complete_link = download_url
+        response=requests.get(complete_link, timeout=10)
+        archive=zipfile.ZipFile(io.BytesIO(response.content))
+        archive.extractall(extract_to)
 
-    soup = BeautifulSoup(response.text, 'html.parser')
-    link_tag = soup.find('a', string=lambda text: text and 'Download the Aircraft Registration Database' in text)
-
-    if not link_tag or 'href' not in link_tag.attrs:
-        raise Exception("Download link not found")
-
-    complete_link = urljoin(url, link_tag['href'])
-    print("Download link found:", complete_link)
-
-    # Step 2: Download and extract using your preferred method
-    zip_response = requests.get(complete_link, timeout=30)
-    zip_response.raise_for_status()
-
-    archive = zipfile.ZipFile(io.BytesIO(zip_response.content))
-
-    # Ensure target directory exists
-    os.makedirs(extract_to, exist_ok=True)
-
-    archive.extractall(extract_to)
-    print(f"Extracted files to: {extract_to}")
-
-    # Step 3: Load MASTER.txt
-    master_path = os.path.join(extract_to, "MASTER.txt")
-    if not os.path.exists(master_path):
-        raise FileNotFoundError(f"MASTER.txt not found in extracted archive at {master_path}")
-
-    df = pd.read_csv(master_path, delimiter='|', encoding='latin1')
-    print("Loaded MASTER.txt — here's a preview:")
-    print(df.head())
-
-    return df
 
 def unzip_files(zip_folder: str, extract_to: str, separate_folders: bool = True, delete_zip: bool = True):
     """
