@@ -3,11 +3,13 @@
 import io
 import glob
 import zipfile
+import os
 
 import requests
 from bs4 import BeautifulSoup, SoupStrainer
 import pandas as pd
 from access_parser import AccessParser
+from urllib.parse import urljoin
 
 
 def download_data(url:str) -> None:
@@ -79,3 +81,106 @@ def read_asc_datafiles(n_files:int) -> pd.DataFrame:
 
     return data_df
 
+def download_airplane_regis(url: str, extract_to: str = "../data/raw/") -> pd.DataFrame:
+    # Step 1: Scrape the FAA page to get the download link
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    link_tag = soup.find('a', string=lambda text: text and 'Download the Aircraft Registration Database' in text)
+
+    if not link_tag or 'href' not in link_tag.attrs:
+        raise Exception("Download link not found")
+
+    complete_link = urljoin(url, link_tag['href'])
+    print("Download link found:", complete_link)
+
+    # Step 2: Download and extract using your preferred method
+    zip_response = requests.get(complete_link, timeout=30)
+    zip_response.raise_for_status()
+
+    archive = zipfile.ZipFile(io.BytesIO(zip_response.content))
+
+    # Ensure target directory exists
+    os.makedirs(extract_to, exist_ok=True)
+
+    archive.extractall(extract_to)
+    print(f"Extracted files to: {extract_to}")
+
+    # Step 3: Load MASTER.txt
+    master_path = os.path.join(extract_to, "MASTER.txt")
+    if not os.path.exists(master_path):
+        raise FileNotFoundError(f"MASTER.txt not found in extracted archive at {master_path}")
+
+    df = pd.read_csv(master_path, delimiter='|', encoding='latin1')
+    print("Loaded MASTER.txt — here's a preview:")
+    print(df.head())
+
+    return df
+
+def unzip_files(zip_folder: str, extract_to: str, separate_folders: bool = True, delete_zip: bool = True):
+    """
+    Unzips all .zip files in the specified folder, skipping any bad zip files.
+
+    Parameters:
+    - zip_folder (str): Path to the folder containing zip files.
+    - extract_to (str): Path to the folder where contents should be extracted.
+    - separate_folders (bool): If True, creates a subfolder for each zip file. 
+                               If False, extracts all into the same folder.
+    - delete_zip (bool): If True, deletes the zip file after extraction.
+    """
+    os.makedirs(extract_to, exist_ok=True)
+
+    for filename in os.listdir(zip_folder):
+        if filename.endswith('.zip'):
+            zip_path = os.path.join(zip_folder, filename)
+            try:
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    if separate_folders:
+                        folder_name = os.path.splitext(filename)[0]
+                        output_folder = os.path.join(extract_to, folder_name)
+                        os.makedirs(output_folder, exist_ok=True)
+                        zip_ref.extractall(output_folder)
+                    else:
+                        zip_ref.extractall(extract_to)
+
+                print(f"Extracted: {filename}")
+
+                if delete_zip:
+                    os.remove(zip_path)
+                    print(f"Deleted: {filename}")
+
+            except zipfile.BadZipFile:
+                print(f"Skipped (Bad Zip): {filename}")
+            except Exception as e:
+                print(f"Skipped ({filename}) due to error: {e}")
+
+
+def combine_csvs_from_subfolders_chunked(parent_folder, output_filename="combined_data.csv", chunk_size=10000):
+    """
+    Combines all CSV files from subfolders using chunking and writes to a single CSV file.
+    
+    Args:
+        parent_folder (str): Path to the parent folder containing subfolders with CSVs.
+        output_filename (str): Name of the final combined CSV file.
+        chunk_size (int): Number of rows per chunk to process.
+    """
+    output_path = os.path.join(parent_folder, output_filename)
+    first_write = True
+
+    for folder_name in os.listdir(parent_folder):
+        folder_path = os.path.join(parent_folder, folder_name)
+        if os.path.isdir(folder_path):
+            for file_name in os.listdir(folder_path):
+                if file_name.endswith(".csv"):
+                    csv_path = os.path.join(folder_path, file_name)
+                    print(f"Processing {csv_path}...")
+
+                    try:
+                        for chunk in pd.read_csv(csv_path, chunksize=chunk_size, low_memory=False):
+                            chunk.to_csv(output_path, mode='a', index=False, header=first_write)
+                            first_write = False
+                    except Exception as e:
+                        print(f"Failed to process {csv_path}: {e}")
+
+    print(f"\n✅ Combined CSV saved to: {output_path}")
