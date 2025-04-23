@@ -16,9 +16,6 @@ def download_data(url:str, raw_data_directory:str, raw_incidents_mdb_file:str) -
 
     # Only download the file if we don't already have it
     if Path(raw_incidents_mdb_file).is_file() == False:
-    
-        # Make the target directory if it does not exist
-        Path(raw_data_directory).mkdir(parents=True, exist_ok=True)
 
         # Get the archive from URL
         response=requests.get(url, timeout=10)
