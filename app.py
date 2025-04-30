@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import pickle
 import os
 
 st.title("Worried Your Plane might Crash?")
@@ -51,5 +52,16 @@ if submit:
         df['time_cos'] = np.cos(2 * np.pi * df['Time'] / 1440)
         
         df = df[['route_encoded', 'time_sin', 'time_cos']]
-        print(df)
+        
+        # Load the trained model
+        model_path = os.path.join("..", "/models/model.pkl")
+
+        if not os.path.exists(model_path):
+            st.error(f"Model file not found: {model_path}")
+            st.stop()
+
+        with open(model_path, "rb") as f:
+            model = pickle.load(f)
+        
+        # make the predictions
     
