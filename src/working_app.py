@@ -34,8 +34,8 @@ def main():
     st.set_page_config(page_title="Flight Route Animation", layout="wide")
     st.title("🛩️ Animated Flight Along Curved Route Between US Airports")
 
-    airports = load_airports()
-
+    airports = load_airports()  
+    print(airports.head())  # Debugging line to check the loaded airports
     st.sidebar.header("Flight Settings")
     origin_label = st.sidebar.selectbox("Origin Airport", airports['Label'])
     dest_label = st.sidebar.selectbox("Destination Airport", airports['Label'])

@@ -15,7 +15,7 @@ def load_airports():
     us_airports["Label"] = us_airports["City"] + " - " + us_airports["Name"] + " (" + us_airports["IATA"] + ")"
     return us_airports[['Label', 'Name', 'City', 'IATA', 'Latitude', 'Longitude']]
 
-# Arc generator
+# Create curved arc
 def generate_arc(p1, p2, num_points=100, height=10):
     lon1, lat1 = p1
     lon2, lat2 = p2
@@ -25,8 +25,9 @@ def generate_arc(p1, p2, num_points=100, height=10):
     curved_lats = lats + curve / 100
     return [[lon, lat] for lon, lat in zip(lons, curved_lats)]
 
-# --- Main app ---
+# App layout
 st.set_page_config(page_title="✈️ Flight Tracker Dashboard", layout="wide")
+st.title("✈️ Flight Dashboard")
 
 # Sidebar
 st.sidebar.title("Flight Controls")
@@ -37,49 +38,78 @@ dest_label = st.sidebar.selectbox("Destination Airport", airports['Label'])
 origin = airports[airports['Label'] == origin_label].iloc[0]
 destination = airports[airports['Label'] == dest_label].iloc[0]
 
-# Header
-st.title("✈️ Flight Dashboard")
+# Header KPIs
 col1, col2, col3 = st.columns(3)
 col1.metric("Origin", f"{origin['City']} ({origin['IATA']})")
 col2.metric("Destination", f"{destination['City']} ({destination['IATA']})")
-col3.metric("Distance Estimate", f"{np.round(np.linalg.norm(np.array([origin['Latitude'], origin['Longitude']]) - np.array([destination['Latitude'], destination['Longitude']])), 2)}°")
+col3.metric("Lat/Lon Distance", f"{np.round(np.linalg.norm(np.array([origin['Latitude'], origin['Longitude']]) - np.array([destination['Latitude'], destination['Longitude']])), 2)}°")
 
 # Tabs
 tab1, tab2 = st.tabs(["🌍 Map View", "🛫 Flight Animation"])
 
-# Map View
+# Static route (straight line)
+solid_route = [[origin['Longitude'], origin['Latitude']],
+               [destination['Longitude'], destination['Latitude']]]
+
+#solid_route_layer = pdk.Layer(
+    #"PathLayer",
+    #data=[{"path": solid_route}],
+    #get_path="path",
+    #get_color=[0, 0, 0],
+    #width_scale=20,
+   # width_min_pixels=2,
+    #get_width=3,
+#)
+
+# View settings
+view_state = pdk.ViewState(
+    latitude=(origin['Latitude'] + destination['Latitude']) / 2,
+    longitude=(origin['Longitude'] + destination['Longitude']) / 2,
+    zoom=3,
+    pitch=0,
+)
+
+# Curved path
+curved_path = generate_arc(
+    (origin['Longitude'], origin['Latitude']),
+    (destination['Longitude'], destination['Latitude']),
+    num_points=100,
+    height=8
+)
+
+# Tab 1: Static Map View
 with tab1:
-    map_layer = pdk.Layer(
+    airport_layer = pdk.Layer(
         "ScatterplotLayer",
-        data=pd.DataFrame([
+        data=[
             {"position": [origin['Longitude'], origin['Latitude']]},
             {"position": [destination['Longitude'], destination['Latitude']]}
-        ]),
+        ],
         get_position="position",
-        get_color=[200, 30, 0],
-        get_radius=7000,
+        get_color=[0, 0, 200],
+        get_radius=6000,
     )
-    view_state = pdk.ViewState(
-        latitude=(origin['Latitude'] + destination['Latitude']) / 2,
-        longitude=(origin['Longitude'] + destination['Longitude']) / 2,
-        zoom=3,
-        pitch=0,
+    path_layer = pdk.Layer(
+        "PathLayer",
+        data=[{"path": curved_path}],
+        get_path="path",
+        get_color=[255, 100, 100],
+        width_scale=20,
+        width_min_pixels=3,
+        get_width=5,
     )
-    st.pydeck_chart(pdk.Deck(layers=[map_layer], initial_view_state=view_state))
+    st.pydeck_chart(pdk.Deck(
+        layers=[airport_layer, path_layer],
+        initial_view_state=view_state,
+        map_style="mapbox://styles/mapbox/light-v9"
+    ))
 
-# Animation
+# Tab 2: Flight Animation
 with tab2:
-    curved_path = generate_arc(
-        (origin['Longitude'], origin['Latitude']),
-        (destination['Longitude'], destination['Latitude']),
-        num_points=100,
-        height=8
-    )
-    trail_length = 5
     chart_placeholder = st.empty()
     start = st.button("🛫 Start Flight")
-
     if start:
+        trail_length = 5
         for i in range(len(curved_path)):
             plane_position = curved_path[i]
             trail = curved_path[max(0, i - trail_length):i + 1]
@@ -102,16 +132,27 @@ with tab2:
                 width_min_pixels=2,
                 get_width=3,
             )
-            base_layers = [
-                pdk.Layer("ScatterplotLayer", data=[
+            airport_layer = pdk.Layer(
+                "ScatterplotLayer",
+                data=[
                     {"position": [origin['Longitude'], origin['Latitude']]},
                     {"position": [destination['Longitude'], destination['Latitude']]}
-                ], get_position="position", get_color=[0, 0, 200], get_radius=6000),
-                pdk.Layer("PathLayer", data=[{"path": curved_path}], get_path="path", get_color=[200, 0, 0], width_scale=20)
-            ]
-
+                ],
+                get_position="position",
+                get_color=[0, 0, 200],
+                get_radius=6000,
+            )
+            base_path_layer = pdk.Layer(
+                "PathLayer",
+                data=[{"path": curved_path}],
+                get_path="path",
+                get_color=[255, 100, 100],
+                width_scale=20,
+                width_min_pixels=3,
+                get_width=5,
+            )
             r = pdk.Deck(
-                layers=base_layers + [trail_layer, plane_layer],
+                layers=[airport_layer, base_path_layer, trail_layer, plane_layer],
                 initial_view_state=view_state,
                 map_style="mapbox://styles/mapbox/light-v9",
             )
