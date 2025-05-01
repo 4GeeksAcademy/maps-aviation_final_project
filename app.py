@@ -14,6 +14,7 @@ st.image(os.path.join(os.getcwd(), "static", "photo.jpg"))
 # load dataset
 data_df=pd.read_csv("data/processed/combined_data.csv")
 
+
 flight_details = {
         "origin": None,
         "destination": None,
@@ -38,10 +39,13 @@ if submit:
             "departure_time": [flight_details["departure_time"].strftime("%H:%M")]
         })
         # create and encode route
+        route_frequency = data_df['origin'] + '_' + data_df['destination']
+        route_frequency = route_frequency.value_counts().to_dict()
         df['route'] = df['origin'] + '_' + df['destination']
-        route_frequency = df['route'].value_counts()
         df['route_encoded'] = df['route'].map(route_frequency)
+        df['route_encoded'].fillna(0, inplace=True)
         df.drop(columns=['route'], inplace=True)
+        print(df)
 
         # create and encode time-sin and time-cosine
         def hhmm_to_minutes(hhmm):
@@ -52,7 +56,7 @@ if submit:
         df['time_sin'] = np.sin(2 * np.pi * df['Time'] / 1440)  # 1440 minutes in a day
         df['time_cos'] = np.cos(2 * np.pi * df['Time'] / 1440)
         
-        df = df[['route_encoded', 'time_sin', 'time_cos']]
+        df = df[['time_sin', 'time_cos', 'route_encoded']]
         
         # Load the trained model
         model_path = os.path.join("models", "model.pkl")
@@ -70,4 +74,4 @@ if submit:
         print(percent_probability)
 
         # Display predictions
-        st.write(f"The probability of your plane crashing is {percent_probability}%")
+        st.write(f"The probability of your plane crashing is {percent_probability.item():.2f}%")
