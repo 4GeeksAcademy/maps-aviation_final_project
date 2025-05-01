@@ -17,10 +17,9 @@ To get started with this project:
 1.  **Fork the Repository:** Click the "Fork" button at the top right of this page to create a copy of this repository in your GitHub account.
 2.  **Run in Codespace:** Once you've forked the repository, navigate to your forked version and click the "Code" button. From the dropdown menu, select "Create codespace on main". This will open a pre-configured development environment in your browser.
 3.  **Run [01-data_acquisition.ipynb](https://github.com/4GeeksAcademy/aviation_final_project/blob/main/src/01-data_acquisition.ipynb):** Within the Codespace environment, you will find the Explorer tab and see workspace src, click the drop down and you will see notebook 01-data_acquisition.ipynb, click the notebook and once in the notebook press run all to start acquiring and gathering the data 
-4.  **Next step is to click notebook 02-data_preparation.ipynb and again press run all function and you will see the data be prepared, visualized, encoded and train-test split for modelling
-Notebook link: https://github.com/4GeeksAcademy/aviation_final_project/blob/main/src/02-data_preparation.ipynb
-5.  **Final step is to click notebook 03-model_building_Dyimah.ipynb, again press run all function and you will see the train and test data uploaded, the model we chose to use for the data, you will the model optimized and the results before and after optimization of the model
-Notebook link: https://github.com/4GeeksAcademy/aviation_final_project/blob/main/src/03-model_building_Dyimah.ipynb
+4.  **Run [02-data_preparation.ipynb](https://github.com/4GeeksAcademy/aviation_final_project/blob/main/src/02-data_preparation.ipynb) and again press run all function and you will see the data be prepared, visualized, encoded and train-test split for modelling
+5.  **Run [03-model_building_Dyimah.ipynb](https://github.com/4GeeksAcademy/aviation_final_project/blob/main/src/03-model_building_Dyimah.ipynb)**, again press run all function and you will see the train and test data uploaded, the model we chose to use for the data, you will the model optimized and the results before and after optimization of the model
+
 
 
 **Requirements**
