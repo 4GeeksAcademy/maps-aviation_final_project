@@ -12,8 +12,7 @@ st.divider()
 st.image(os.path.join(os.path.dirname(__file__), "..", "static", "photo.jpg"))
 
 # load dataset
-# data_df=pd.read_csv("../data/processed/combined_data.csv")
-data_path = os.path.join(os.path.dirname(__file__), "..", "data", "processed", "combined_data.csv")
+data_path = os.path.join(os.getcwd(), "data", "processed", "combined_data.csv")
 data_df = pd.read_csv(data_path)
 
 flight_details = {
@@ -60,7 +59,8 @@ if submit:
         df = df[['time_sin', 'time_cos', 'route_encoded']]
         
         # Load the trained model
-        model_path = os.path.join("models", "model.pkl")
+        model_path = os.path.join(os.getcwd(), "models", "model.pkl")
+
 
         if not os.path.exists(model_path):
             st.error(f"Model file not found: {model_path}")
