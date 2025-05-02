@@ -9,11 +9,12 @@ st.title("Worried Your Plane might Crash?")
 st.subheader("Submit your flight details to find out.")
 st.divider()
 
-st.image(os.path.join(os.getcwd(), "static", "photo.jpg"))
+st.image(os.path.join(os.path.dirname(__file__), "..", "static", "photo.jpg"))
 
 # load dataset
-data_df=pd.read_csv("data/processed/combined_data.csv")
-
+# data_df=pd.read_csv("../data/processed/combined_data.csv")
+data_path = os.path.join(os.path.dirname(__file__), "..", "data", "processed", "combined_data.csv")
+data_df = pd.read_csv(data_path)
 
 flight_details = {
         "origin": None,
