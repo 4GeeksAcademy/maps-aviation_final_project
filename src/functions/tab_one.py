@@ -3,7 +3,7 @@
 import streamlit as st
 import pandas as pd
 
-def tab1(airports:pd.DataFrame):
+def tab1(airports:pd.DataFrame, model:callable, frequencies:dict):
     '''Defines incident prediction tab.'''
 
     st.header("Predict Flight Incident Risk")

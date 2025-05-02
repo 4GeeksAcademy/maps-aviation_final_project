@@ -5,7 +5,7 @@ import numpy as np
 import time
 from PIL import Image
 
-import functions.web_app as app_funcs
+import functions.tab_one as tab_one_func
 
 # ---------------------------
 # PAGE CONFIG & BANNER IMAGE
@@ -64,7 +64,7 @@ def main():
     ])
 
     with tab1:
-        origin_label, dest_label = app_funcs.tab1(airports)
+        origin_label, dest_label = tab_one_func.tab1(airports)
 
     with tab2:
         st.header("Model Performance Metrics")
