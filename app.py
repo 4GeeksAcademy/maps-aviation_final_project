@@ -14,5 +14,3 @@ with st.form(key="user_flight_details"):
     tail_number = st.text_input("Enter the airplane tail number aka N-number: ")
 
     st.form_submit_button()
-
-    

@@ -30,8 +30,6 @@ scikit-learn==1.6.1
 scipy==1.15.2
 matplotlib==3.10.1
 seaborn==0.13.2
-ipykernel==6.29.5
-pyarrow==19.0.1
 requests==2.32.3
 access-parser==0.0.6
 beautifulsoup4==4.13.4

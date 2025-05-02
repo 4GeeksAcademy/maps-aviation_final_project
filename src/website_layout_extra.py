@@ -5,11 +5,13 @@ import numpy as np
 import time
 from PIL import Image
 
+import functions.web_app as app_funcs
+
 # ---------------------------
 # PAGE CONFIG & BANNER IMAGE
 # ---------------------------
 st.set_page_config(page_title="✈️ Flight Incident App", layout="wide")
-image = Image.open("/workspaces/Madesh3-aviation_final_project/static/photo.jpg")
+image = Image.open("src/static/photo.jpg")
 
 # ---------------------------
 # LOAD AIRPORT DATA
@@ -62,16 +64,7 @@ def main():
     ])
 
     with tab1:
-        st.header("Predict Flight Incident Risk")
-        col1, col2 = st.columns(2)
-        with col1:
-            origin_label = st.selectbox("Origin Airport", airports['Label'])
-            dest_label = st.selectbox("Destination Airport", airports['Label'])
-        with col2:
-            departure_time = st.number_input("Departure Time (e.g., 1430 for 2:30 PM)", min_value=0, max_value=2359, step=5)
-
-        if st.button("Predict Incident Probability"):
-            st.warning("Prediction logic not implemented.")
+        origin_label, dest_label = app_funcs.tab1(airports)
 
     with tab2:
         st.header("Model Performance Metrics")
