@@ -6,7 +6,8 @@ import pickle
 import os
 import plotly.graph_objects as go
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath("app_v1.py")))
+# base_dir = os.path.dirname(os.path.dirname(os.path.abspath("app_v1.py")))
+base_dir = os.path.dirname(os.path.abspath("app_v1.py"))
 
 # ---------------------------
 # PAGE CONFIG & BANNER IMAGE
