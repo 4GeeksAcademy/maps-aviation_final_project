@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,13 +9,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
 import seaborn as sns
 from sklearn.inspection import permutation_importance
-from PIL import Image
 
 # Set page config
 st.set_page_config(page_title="Flight Incident Predictor", layout="wide")
-
-# Load and display an image from local directory
-image = Image.open("/workspaces/maps-aviation_final_project/static/photo.jpg")  
 
 # Function to load and preprocess data
 @st.cache_data
@@ -46,7 +41,7 @@ def frequency_encode(df, col):
     return df, freq_map
 
 # Function to prepare features
-def prepare_features(df, origin_freq_map=None, dest_freq_map=None, training=False):
+def prepare_features(df, origin_freq_map=None, dest_freq_map=None, tail_freq_map=None, training=False):
     # Make a copy of the dataframe to avoid modifying the original
     X = df.copy()
     
@@ -54,24 +49,27 @@ def prepare_features(df, origin_freq_map=None, dest_freq_map=None, training=Fals
     max_time = 2400
     X = cyclical_encode(X, 'departure_time', max_time)
     
-    # Frequency encoding for origin and destination
+    # Frequency encoding for origin, destination, and tail_number
     if training:
         X, origin_freq_map = frequency_encode(X, 'origin')
         X, dest_freq_map = frequency_encode(X, 'destination')
-        maps = {'origin': origin_freq_map, 'destination': dest_freq_map}
+        X, tail_freq_map = frequency_encode(X, 'tail_number')
+        maps = {'origin': origin_freq_map, 'destination': dest_freq_map, 'tail_number': tail_freq_map}
     else:
         # Use the provided frequency maps
         X['origin_freq'] = X['origin'].map(origin_freq_map)
         X['destination_freq'] = X['destination'].map(dest_freq_map)
+        X['tail_number_freq'] = X['tail_number'].map(tail_freq_map)
         maps = None
         
         # Handle any new categories not seen in training
         X['origin_freq'].fillna(min(origin_freq_map.values()), inplace=True)
         X['destination_freq'].fillna(min(dest_freq_map.values()), inplace=True)
+        X['tail_number_freq'].fillna(min(tail_freq_map.values()), inplace=True)
     
     # Select features for model
     feature_cols = ['departure_time_sin', 'departure_time_cos', 
-                   'origin_freq', 'destination_freq']
+                   'origin_freq', 'destination_freq', 'tail_number_freq']
     
     return X[feature_cols], maps
 
@@ -138,7 +136,7 @@ def main():
     st.title("✈️ Flight Incident Prediction")
     st.markdown("""
     This app predicts the likelihood of a flight incident based on origin, destination, 
-    and departure time information.
+    departure time, and tail number information.
     """)
     
     # Load and process data
@@ -153,7 +151,6 @@ def main():
     
     # Tab 1: Prediction Interface
     with tab1:
-        st.image(image, caption="Flight Incident")
         st.header("Predict Flight Incident Risk")
         
         # Create columns for the form
@@ -172,12 +169,17 @@ def main():
             # Departure time (use a slider for better UX)
             departure_time = st.number_input("Departure Time (24hr format e.g. 1430 for 2:30 PM)", 
                                             min_value=0, max_value=2359, value=1200, step=5)
+            
+            # Tail number
+            tail_numbers = sorted(df['tail_number'].unique().tolist())
+            tail_number = st.selectbox("Aircraft Tail Number", tail_numbers)
         
         # Create prediction DataFrame
         pred_df = pd.DataFrame({
             'origin': [origin],
             'destination': [destination],
             'departure_time': [departure_time],
+            'tail_number': [tail_number]
         })
         
         # Prepare features using the frequency maps from training
@@ -185,6 +187,7 @@ def main():
             pred_df,
             origin_freq_map=model_results['feature_maps']['origin'],
             dest_freq_map=model_results['feature_maps']['destination'],
+            tail_freq_map=model_results['feature_maps']['tail_number'],
             training=False
         )
         
@@ -220,6 +223,7 @@ def main():
                 st.markdown(f"""
                 - **Route:** {origin} → {destination}
                 - **Departure Time:** {departure_time}
+                - **Aircraft:** {tail_number}
                 """)
                 
                 # Feature contribution
@@ -229,18 +233,20 @@ def main():
                 # But for simplicity, we'll just show the feature values relative to the frequency maps
                 contribution_data = {
                     'Feature': ['Origin Airport', 'Destination Airport', 'Departure Time (Sin)', 
-                               'Departure Time (Cos)'],
+                               'Departure Time (Cos)', 'Tail Number'],
                     'Value': [
                         f"{origin} (freq: {model_results['feature_maps']['origin'].get(origin, 0):.3f})",
                         f"{destination} (freq: {model_results['feature_maps']['destination'].get(destination, 0):.3f})",
                         f"{X_pred['departure_time_sin'].values[0]:.3f}",
                         f"{X_pred['departure_time_cos'].values[0]:.3f}",
+                        f"{tail_number} (freq: {model_results['feature_maps']['tail_number'].get(tail_number, 0):.3f})"
                     ],
                     'Importance': [
                         model_results['feature_importances']['origin_freq'],
                         model_results['feature_importances']['destination_freq'],
                         model_results['feature_importances']['departure_time_sin'],
                         model_results['feature_importances']['departure_time_cos'],
+                        model_results['feature_importances']['tail_number_freq']
                     ]
                 }
                 

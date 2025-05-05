@@ -17,7 +17,7 @@ st.set_page_config(page_title="Flight Incident Predictor", layout="wide")
 @st.cache_data
 def load_and_preprocess_data():
     # Load data
-    df = pd.read_csv("/workspaces/Madesh_datascience_project/data.csv")
+    df = pd.read_csv("/workspaces/maps-aviation_final_project/data.csv")
     
     # Clean the data
     for col in df.select_dtypes(include=['object']).columns:
