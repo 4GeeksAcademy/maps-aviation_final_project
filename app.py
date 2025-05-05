@@ -1,348 +1,266 @@
-
+import src.configuration as config 
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.experimental import enable_hist_gradient_boosting
-from sklearn.ensemble import HistGradientBoostingClassifier
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
-import seaborn as sns
+import pickle
+import os
+import plotly.graph_objects as go
 
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath("app.py")))
+
+# ---------------------------
+# PAGE CONFIG & BANNER IMAGE
+# ---------------------------
 # Set page config
-st.set_page_config(page_title="Flight Incident Predictor", layout="wide")
+st.set_page_config(
+    page_title="Flight Incident Predictor",
+    page_icon="✈️",
+    layout="wide"
+)
+# ---------------------------
+# MAIN APP
+# ---------------------------
+def main():    
+    # Create two columns for parallel display
+    col1, col2, col3 = st.columns([1,2,1])
 
-# Function to load and preprocess data
-@st.cache_data
-def load_and_preprocess_data():
-    # Load data
-    df = pd.read_csv("/workspaces/maps-aviation_final_project/data/processed/combined_data.csv")
+    # Display GIFs in respective columns
+    with col1:
+        st.image(os.path.join(os.path.dirname(__file__), "static", "take_off_1.gif"), use_container_width=True)
     
-    # Clean the data
-    for col in df.select_dtypes(include=['object']).columns:
-        df[col] = df[col].str.strip()
-    
-    # Convert departure_time to numeric if it's not already
-    df['departure_time'] = pd.to_numeric(df['departure_time'])
-    
-    return df
-
-# Cyclical encoding for time
-def cyclical_encode(df, col, max_val):
-    df[f'{col}_sin'] = np.sin(2 * np.pi * df[col]/max_val)
-    df[f'{col}_cos'] = np.cos(2 * np.pi * df[col]/max_val)
-    return df
-
-# Frequency encoding for categorical features
-def frequency_encode(df, col):
-    freq_map = df[col].value_counts(normalize=True).to_dict()
-    df[f'{col}_freq'] = df[col].map(freq_map)
-    return df, freq_map
-
-# Function to prepare features
-def prepare_features(df, origin_freq_map=None, dest_freq_map=None, tail_freq_map=None, training=False):
-    # Make a copy of the dataframe to avoid modifying the original
-    X = df.copy()
-    
-    # Cyclical encoding for departure time (assuming 24-hour format or max value 2400)
-    max_time = 2400
-    X = cyclical_encode(X, 'departure_time', max_time)
-    
-    # Frequency encoding for origin, destination, and tail_number
-    if training:
-        X, origin_freq_map = frequency_encode(X, 'origin')
-        X, dest_freq_map = frequency_encode(X, 'destination')
-        X, tail_freq_map = frequency_encode(X, 'tail_number')
-        maps = {'origin': origin_freq_map, 'destination': dest_freq_map, 'tail_number': tail_freq_map}
-    else:
-        # Use the provided frequency maps
-        X['origin_freq'] = X['origin'].map(origin_freq_map)
-        X['destination_freq'] = X['destination'].map(dest_freq_map)
-        X['tail_number_freq'] = X['tail_number'].map(tail_freq_map)
-        maps = None
+    # Set title and subtitle
+    with col2:
+        # Add custom CSS with more styling options    
+        st.markdown("""
+            <style>
+            .centered-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1E88E5;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-bottom: 2px solid #1E88E5;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+        # Use the styled title
+        st.markdown('<h1 class="centered-title">Flight Incident Risk Predictor</h1>', unsafe_allow_html=True) 
         
-        # Handle any new categories not seen in training
-        X['origin_freq'].fillna(min(origin_freq_map.values()), inplace=True)
-        X['destination_freq'].fillna(min(dest_freq_map.values()), inplace=True)
-        X['tail_number_freq'].fillna(min(tail_freq_map.values()), inplace=True)
-    
-    # Select features for model
-    feature_cols = ['departure_time_sin', 'departure_time_cos', 
-                   'origin_freq', 'destination_freq', 'tail_number_freq']
-    
-    return X[feature_cols], maps
+        # Use the styled title
+        st.markdown('<p class="centered-text">This app predicts the likelihood of a flight incident based on origin, destination, and departure time information!</p>', unsafe_allow_html=True)
+       
+    # Display GIFs in respective columns
+    with col3:
+        st.image(os.path.join(os.path.dirname(__file__), "static", "crash_1.gif"), use_container_width=True)
+    st.divider()
 
-# Function to train model
-@st.cache_data
-def train_model(df):
-    y = df['incident']
-    
-    # Prepare features
-    X, feature_maps = prepare_features(df, training=True)
-    
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
-    
-    # Initialize and train the model with specified hyperparameters
-    model = HistGradientBoostingClassifier(
-        l2_regularization=0.1,
-        learning_rate=0.01,
-        max_iter=1000,
-        max_leaf_nodes=15,
-        random_state=42
-    )
-    
-    model.fit(X_train, y_train)
-    
-    # Model evaluation
-    train_score = model.score(X_train, y_train)
-    test_score = model.score(X_test, y_test)
-    
-    y_pred = model.predict(X_test)
-    y_prob = model.predict_proba(X_test)[:, 1]
-    
-    # Calculate metrics
-    report = classification_report(y_test, y_pred, output_dict=True)
-    cm = confusion_matrix(y_test, y_pred)
-    
-    # ROC curve
-    fpr, tpr, _ = roc_curve(y_test, y_prob)
-    roc_auc = auc(fpr, tpr)
-    
-    # Feature importance
-    feature_importances = {name: importance for name, importance in 
-                           zip(X.columns, model.feature_importances_)}
-    
-    results = {
-        'model': model,
-        'feature_maps': feature_maps,
-        'train_score': train_score,
-        'test_score': test_score,
-        'classification_report': report,
-        'confusion_matrix': cm,
-        'fpr': fpr,
-        'tpr': tpr,
-        'roc_auc': roc_auc,
-        'feature_importances': feature_importances
-    }
-    
-    return results
+    # ---------------------------
+    # TABS
+    # ---------------------------
+    # Custom CSS for tab styling
 
-# Main app
-def main():
-    st.title("✈️ Flight Incident Prediction")
-    st.markdown("""
-    This app predicts the likelihood of a flight incident based on origin, destination, 
-    departure time, and tail number information.
-    """)
-    
-    # Load and process data
-    df = load_and_preprocess_data()
-    
-    # Train model and get results
-    with st.spinner("Training model... (this may take a moment)"):
-        model_results = train_model(df)
-    
-    # Create tabs for different sections of the app
-    tab1, tab2, tab3 = st.tabs(["Incident Predictor", "Model Performance", "Data Exploration"])
-    
-    # Tab 1: Prediction Interface
+    tab1, tab2, tab3 = st.tabs(["🔮 Incident Predictor", "📊 Model Performance", "📈 Data Exploration"])
+    # TAB 1: Incident Predictor UI Skeleton
     with tab1:
-        st.header("Predict Flight Incident Risk")
-        
-        # Create columns for the form
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            # Get unique values for dropdowns
-            origins = sorted(df['origin'].unique().tolist())
-            destinations = sorted(df['destination'].unique().tolist())
-            
-            # Origin and destination dropdowns
-            origin = st.selectbox("Origin Airport", origins)
-            destination = st.selectbox("Destination Airport", destinations)
-        
-        with col2:
-            # Departure time (use a slider for better UX)
-            departure_time = st.number_input("Departure Time (24hr format e.g. 1430 for 2:30 PM)", 
-                                            min_value=0, max_value=2359, value=1200, step=5)
-            
-            # Tail number
-            tail_numbers = sorted(df['tail_number'].unique().tolist())
-            tail_number = st.selectbox("Aircraft Tail Number", tail_numbers)
-        
-        # Create prediction DataFrame
-        pred_df = pd.DataFrame({
-            'origin': [origin],
-            'destination': [destination],
-            'departure_time': [departure_time],
-            'tail_number': [tail_number]
-        })
-        
-        # Prepare features using the frequency maps from training
-        X_pred, _ = prepare_features(
-            pred_df,
-            origin_freq_map=model_results['feature_maps']['origin'],
-            dest_freq_map=model_results['feature_maps']['destination'],
-            tail_freq_map=model_results['feature_maps']['tail_number']
-        )
-        
-        # Make prediction
-        if st.button("Predict Incident Probability"):
-            with st.spinner("Calculating..."):
-                # Get probability of incident
-                incident_prob = model_results['model'].predict_proba(X_pred)[0, 1]
-                
-                # Display results
-                st.subheader("Prediction Results")
-                
-                # Create a nicer visual display
-                col1, col2 = st.columns([1, 2])
-                
-                with col1:
-                    if incident_prob < 0.25:
-                        st.markdown(f"### 🟢 Low Risk")
-                    elif incident_prob < 0.5:
-                        st.markdown(f"### 🟡 Moderate Risk")
-                    elif incident_prob < 0.75:
-                        st.markdown(f"### 🟠 High Risk")
-                    else:
-                        st.markdown(f"### 🔴 Very High Risk")
-                
-                with col2:
-                    # Create progress bar for risk visualization
-                    st.progress(float(incident_prob))
-                    st.markdown(f"**Incident Probability: {incident_prob:.1%}**")
-                
-                # Show flight details
-                st.subheader("Flight Details")
-                st.markdown(f"""
-                - **Route:** {origin} → {destination}
-                - **Departure Time:** {departure_time}
-                - **Aircraft:** {tail_number}
-                """)
-                
-                # Feature contribution
-                st.subheader("Feature Contributions")
-                
-                # Here we could implement SHAP values for better explanations
-                # But for simplicity, we'll just show the feature values relative to the frequency maps
-                contribution_data = {
-                    'Feature': ['Origin Airport', 'Destination Airport', 'Departure Time (Sin)', 
-                               'Departure Time (Cos)', 'Tail Number'],
-                    'Value': [
-                        f"{origin} (freq: {model_results['feature_maps']['origin'].get(origin, 0):.3f})",
-                        f"{destination} (freq: {model_results['feature_maps']['destination'].get(destination, 0):.3f})",
-                        f"{X_pred['departure_time_sin'].values[0]:.3f}",
-                        f"{X_pred['departure_time_cos'].values[0]:.3f}",
-                        f"{tail_number} (freq: {model_results['feature_maps']['tail_number'].get(tail_number, 0):.3f})"
-                    ],
-                    'Importance': [
-                        model_results['feature_importances']['origin_freq'],
-                        model_results['feature_importances']['destination_freq'],
-                        model_results['feature_importances']['departure_time_sin'],
-                        model_results['feature_importances']['departure_time_cos'],
-                        model_results['feature_importances']['tail_number_freq']
-                    ]
-                }
-                
-                contrib_df = pd.DataFrame(contribution_data)
-                contrib_df['Weighted Contribution'] = contrib_df['Importance'] / contrib_df['Importance'].sum()
-                
-                # Display as a sortable table
-                st.dataframe(contrib_df.sort_values('Importance', ascending=False))
+        st.markdown("""
+        <style>
+            /* Tab container */
+            .stTabs [data-baseweb="tab-list"] {
+                gap: 1rem;
+                justify-content: center;
+            }
+            /* Tab headers */
+            .stTabs [data-baseweb="tab"] {
+                font-size: 9rem; #text size 
+                font-weight: 900;
+                padding: 1.5rem 3rem;
+                background-color: #b1d1fa;
+                color: black;
+                border-radius: 5px;
+                transition: all 0.3s ease;
+            }
+            /* Hover effect */
+            .stTabs [data-baseweb="tab"]:hover {
+                background-color: #54b096;
+                color: black
+                transform: translateY(-2px);
+            }
+            /* Selected tab */
+            .stTabs [aria-selected="true"] {
+                font-size: 1.6rem;
+                font-weight: 700;
+                background-color: #b1d1fa;
+                color: black;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+        </style>
+        """, unsafe_allow_html=True)
+        # Use the styled title 
+        st.markdown("""
+            <style>
+            .sub-header {
+                font-size: 0.5rem;
+                font-weight: 100;
+                color: #fafbfc;
+                margin-top: 0.5rem;
+            }
+            </style>
+            """, unsafe_allow_html=True)
     
-    # Tab 2: Model Performance
+        st.markdown('<h2 class="sub-header">Please choose from below options for a prediction! </h2>', unsafe_allow_html=True)
+        # Custom CSS for form elements
+        st.markdown("""
+            <style>
+            /* Style for form labels */
+            .stForm label {
+                font-size: 3rem;
+                font-weight: bold;
+                color: #080808;
+                padding: 0.5rem 0;
+            }
+        
+            /* Style for selectbox labels */
+            .stSelectbox label {
+                font-size: 1.3rem;
+                font-weight: bold;
+                color: #080808;
+                margin-bottom: 0.5rem;
+            }
+        
+            /* Style for form container */
+            .stForm {
+                padding: 1rem;
+                background-color: #b1d1fa;
+                border-radius: 5px;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+        # load dataset
+        data_path = os.path.join(base_dir, "data", "processed", "combined_data.csv")
+        data_df = pd.read_csv(data_path)
+
+        flight_details = {
+            "origin": None,
+            "destination": None,
+            "departure_time": None,
+            }
+        st.markdown("""
+        <style>
+        .stButton button {
+            width: 200px;
+            margin: 1rem auto;
+            background-color: #4CAF50;
+            background: linear-gradient(45deg, #1E88E5, #00BCD4);
+            color: white;
+            font-size: 2.1rem;
+            font-weight: bold;
+            padding: 3rem 6rem;
+            border-radius: 5px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .stButton button:hover {
+            background: linear-gradient(45deg, #1565C0, #0097A7);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            </style>
+            """, unsafe_allow_html=True)
+        with st.form(key="user_flight_details"):
+        # create three columns for parallel display
+            col1, col2, col3 = st.columns(3)
+            with col1: 
+                flight_details["origin"] = st.selectbox(label="Enter the departure airport: ", options=data_df['origin'].unique(), placeholder='LGA')
+            with col2: 
+                flight_details["destination"] = st.selectbox(label="Enter the destination airport: ", options=data_df['destination'].unique(), placeholder='ORF')
+            with col3: 
+                flight_details["departure_time"] = st.time_input("Enter your departure time (use military time): ")
+            # submit button
+            submit = st.form_submit_button("Submit")
+    
+        # Process the form submission
+        # Check if the form was submitted
+        if submit:
+            if not all(flight_details.values()):
+                    st.warning("Please fill in all of the fields")
+            else:
+                # Convert departure_time (which is a time object) to string
+                df = pd.DataFrame({
+                    "origin": [flight_details["origin"]],
+                    "destination": [flight_details["destination"]],
+                    "departure_time": [flight_details["departure_time"].strftime("%H:%M")]
+                })
+                # create and encode route
+                route_frequency = data_df['origin'] + '_' + data_df['destination']
+                route_frequency = route_frequency.value_counts().to_dict()
+                df['route'] = df['origin'] + '_' + df['destination']
+                df['route_encoded'] = df['route'].map(route_frequency)
+                df['route_encoded'].fillna(0, inplace=True)
+                df.drop(columns=['route'], inplace=True)
+                print(df)
+
+                # create and encode time-sin and time-cosine
+                def hhmm_to_minutes(hhmm):
+                    hours, minutes = map(int, hhmm.split(":"))
+                    return hours * 60 + minutes  
+        
+                df['Time'] = df['departure_time'].apply(hhmm_to_minutes)
+                df['time_sin'] = np.sin(2 * np.pi * df['Time'] / 1440)  # 1440 minutes in a day
+                df['time_cos'] = np.cos(2 * np.pi * df['Time'] / 1440)
+        
+                df = df[['time_sin', 'time_cos', 'route_encoded']]
+        
+                # Load the trained model
+                model_path = os.path.join(base_dir, "models", "model.pkl")
+        
+                if not os.path.exists(model_path):
+                    st.error(f"Model file not found: {model_path}")
+                    st.stop()
+
+                with open(model_path, "rb") as f:
+                    model = pickle.load(f)
+        
+                # make the predictions
+                probability = model.predict_proba(df)
+                percent_probability = probability[:, 1] * 100
+                print(percent_probability)
+
+                # Display predictions
+                st.write(f"The probability of your plane crashing is {percent_probability.item():.2f}%")
+                # Gauge chart
+                fig = go.Figure(go.Indicator(
+                    mode="gauge+number+delta",
+                    value=percent_probability.item(),
+                    delta={'reference': 50, 'increasing': {'color': "red"}},
+                    gauge={
+                        'axis': {'range': [0, 100]},
+                        'bar': {'color': "darkblue"},
+                        'steps': [
+                            {'range': [0, 25], 'color': "lightgreen"},
+                            {'range': [25, 50], 'color': "yellow"},
+                            {'range': [50, 75], 'color': "orange"},
+                            {'range': [75, 100], 'color': "red"}
+                        ],
+                        'threshold': {
+                            'line': {'color': "black", 'width': 4},
+                            'thickness': 0.75,
+                            'value': percent_probability.item()
+                        }
+                    },
+                    title={'text': "Flight Incident Risk (%)"}
+                ))
+
+                st.plotly_chart(fig, use_container_width=True)
+    # TAB 2: Model Performance UI Skeleton
     with tab2:
         st.header("Model Performance Metrics")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("Model Accuracy")
-            st.markdown(f"""
-            - **Training Accuracy:** {model_results['train_score']:.4f}
-            - **Test Accuracy:** {model_results['test_score']:.4f}
-            """)
-            
-            st.subheader("Classification Report")
-            report_df = pd.DataFrame(model_results['classification_report']).transpose()
-            st.dataframe(report_df)
-        
-        with col2:
-            st.subheader("ROC Curve")
-            fig, ax = plt.subplots(figsize=(8, 6))
-            ax.plot(model_results['fpr'], model_results['tpr'], 
-                   label=f'ROC Curve (AUC = {model_results["roc_auc"]:.3f})')
-            ax.plot([0, 1], [0, 1], 'k--')
-            ax.set_xlabel('False Positive Rate')
-            ax.set_ylabel('True Positive Rate')
-            ax.set_title('Receiver Operating Characteristic (ROC)')
-            ax.legend(loc='lower right')
-            st.pyplot(fig)
-            
-            st.subheader("Confusion Matrix")
-            fig, ax = plt.subplots(figsize=(6, 4))
-            sns.heatmap(model_results['confusion_matrix'], annot=True, fmt='d', cmap='Blues', ax=ax)
-            ax.set_xlabel('Predicted Label')
-            ax.set_ylabel('True Label')
-            ax.set_title('Confusion Matrix')
-            st.pyplot(fig)
-        
-        st.subheader("Feature Importance")
-        sorted_importances = dict(sorted(model_results['feature_importances'].items(), 
-                                         key=lambda x: x[1], reverse=True))
-        
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.bar(sorted_importances.keys(), sorted_importances.values())
-        ax.set_xticklabels(sorted_importances.keys(), rotation=45, ha='right')
-        ax.set_title('Feature Importance')
-        st.pyplot(fig)
-    
-    # Tab 3: Data Exploration
+        st.info("Model evaluation metrics and visualizations will appear here.")
+
+    # TAB 3: Data Exploration UI Skeleton
     with tab3:
         st.header("Data Exploration")
-        
-        st.subheader("Raw Data")
-        st.dataframe(df)
-        
-        st.subheader("Incident Distribution")
-        fig, ax = plt.subplots(figsize=(8, 4))
-        sns.countplot(data=df, x='incident', ax=ax)
-        ax.set_title('Distribution of Flight Incidents')
-        ax.set_xlabel('Incident (0 = No, 1 = Yes)')
-        ax.set_ylabel('Count')
-        
-        # Add percentage labels
-        total = len(df)
-        for p in ax.patches:
-            height = p.get_height()
-            ax.text(p.get_x() + p.get_width()/2.,
-                    height + 0.1,
-                    '{:1.1f}%'.format(height/total*100),
-                    ha="center") 
-            
-        st.pyplot(fig)
-        
-        st.subheader("Departure Time vs Incident")
-        fig, ax = plt.subplots(figsize=(10, 5))
-        sns.boxplot(data=df, x='incident', y='departure_time', ax=ax)
-        ax.set_title('Departure Time by Incident Status')
-        ax.set_xlabel('Incident (0 = No, 1 = Yes)')
-        ax.set_ylabel('Departure Time (24hr format)')
-        st.pyplot(fig)
-        
-        # Add correlation of cyclical time features
-        st.subheader("Correlation with Cyclical Time Features")
-        temp_df = df.copy()
-        temp_df = cyclical_encode(temp_df, 'departure_time', 2400)
-        corr_data = temp_df[['departure_time_sin', 'departure_time_cos', 'incident']].corr()
-        
-        fig, ax = plt.subplots(figsize=(8, 6))
-        sns.heatmap(corr_data, annot=True, cmap='coolwarm', ax=ax)
-        ax.set_title('Correlation with Cyclical Time Features')
-        st.pyplot(fig)
+        st.info("Raw data views, visualizations, and correlation plots will be added here.")
 
 if __name__ == "__main__":
     main()
