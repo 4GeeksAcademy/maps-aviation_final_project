@@ -27,4 +27,4 @@ ONTIME_DATA_URL='https://www.bts.gov/browse-statistical-products-and-data/bts-pu
 ONTIME_DATA_LINK_PREFIX='https://www.bts.dot.gov'
 
 # Number of on-time performance files to download and parse
-ONTIME_FILES=3
+ONTIME_FILES=2
