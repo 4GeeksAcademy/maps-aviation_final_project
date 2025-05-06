@@ -60,26 +60,27 @@ if submit:
         })
         # create and encode route
         df['route'] = df['origin'] + '_' + df['destination']
-        df['route_encoded'] = df['route'].map(route_frequency)
-        df['route_encoded'].fillna(0, inplace=True)
-        df.drop(columns=['route'], inplace=True)
-        print(df)
+        if df['route'].iloc[0] not in route_frequency:
+            st.error(f"Invalid Flight Route. Please check your origin and destination.")
+        else:
+            df['route_encoded'] = df['route'].map(route_frequency)
+            df['route_encoded'].fillna(0, inplace=True)
+            df.drop(columns=['route'], inplace=True)
 
-        # create and encode time-sin and time-cosine
-        def hhmm_to_minutes(hhmm):
-            hours, minutes = map(int, hhmm.split(":"))
-            return hours * 60 + minutes  
-        
-        df['Time'] = df['departure_time'].apply(hhmm_to_minutes)
-        df['time_sin'] = np.sin(2 * np.pi * df['Time'] / 1440)  # 1440 minutes in a day
-        df['time_cos'] = np.cos(2 * np.pi * df['Time'] / 1440)
-        
-        df = df[['time_sin', 'time_cos', 'route_encoded']]
-        
-        # make the predictions
-        probability = model.predict_proba(df)
-        percent_probability = probability[:, 1] * 100
-        print(percent_probability)
+            # create and encode time-sin and time-cosine
+            def hhmm_to_minutes(hhmm):
+                hours, minutes = map(int, hhmm.split(":"))
+                return hours * 60 + minutes  
+            
+            df['Time'] = df['departure_time'].apply(hhmm_to_minutes)
+            df['time_sin'] = np.sin(2 * np.pi * df['Time'] / 1440)  # 1440 minutes in a day
+            df['time_cos'] = np.cos(2 * np.pi * df['Time'] / 1440)
+            
+            df = df[['time_sin', 'time_cos', 'route_encoded']]
+            
+            # make the predictions
+            probability = model.predict_proba(df)
+            percent_probability = probability[:, 1] * 100
 
-        # Display predictions
-        st.write(f"The probability of your plane crashing is {percent_probability.item():.2f}%")
+            # Display predictions
+            st.write(f"The probability of your plane crashing is {percent_probability.item():.2f}%")
