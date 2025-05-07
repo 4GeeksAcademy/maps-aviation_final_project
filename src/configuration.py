@@ -1,12 +1,13 @@
 '''Project globals'''
 
 # Paths
-WORKING_DIRECTORY='..'
+WORKING_DIRECTORY='.'
 DATA_DIRECTORY=f'{WORKING_DIRECTORY}/data'
 RAW_DATA_DIRECTORY=f'{DATA_DIRECTORY}/raw'
 INTERIM_DATA_DIRECTORY=f'{DATA_DIRECTORY}/interim'
 PROCESSED_DATA_DIRECTORY=f'{DATA_DIRECTORY}/processed'
 MODEL_DIRECTORY=f'{WORKING_DIRECTORY}/models'
+STATIC_APP_ASSETS=f'{WORKING_DIRECTORY}/src/static'
 
 # Data files
 RAW_INCIDENTS_MDB_FILE=f'{RAW_DATA_DIRECTORY}/avall.mdb'
@@ -26,4 +27,4 @@ ONTIME_DATA_URL='https://www.bts.gov/browse-statistical-products-and-data/bts-pu
 ONTIME_DATA_LINK_PREFIX='https://www.bts.dot.gov'
 
 # Number of on-time performance files to download and parse
-ONTIME_FILES=3
+ONTIME_FILES=2
