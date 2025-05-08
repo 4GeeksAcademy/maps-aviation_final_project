@@ -4,10 +4,6 @@ import json
 import os
 from src.app import check_route, hhmm_to_minutes
 
-route_frequency_path = os.path.join(os.getcwd(), "src", "static", "route_frequency.json")
-with open(route_frequency_path, 'r') as f:
-        route_frequency = json.load(f)
-
 def test_valid_route():
     df = pd.DataFrame({'origin': ['JFK'], 'destination': ['LAX']})
     route_frequency = {'JFK_LAX': 10}
@@ -23,7 +19,7 @@ def test_valid_route():
 
 def test_invalid_route():
     df = pd.DataFrame({'origin': ['BIS'], 'destination': ['BIS']})
-    route_frequency = {'BIS_BIS': 10}
+    route_frequency = {'LGA_ORF': 10}
     
     result = check_route(df.copy(), route_frequency)
     
