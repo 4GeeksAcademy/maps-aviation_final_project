@@ -20,6 +20,11 @@ def check_route(df, route_frequency):
 
     return df
 
+# create and encode time-sin and time-cosine
+def hhmm_to_minutes(hhmm):
+    hours, minutes = map(int, hhmm.split(":"))
+    return hours * 60 + minutes  
+
 
 if __name__ == '__main__':
 
@@ -83,10 +88,6 @@ if __name__ == '__main__':
                 st.error(f"Invalid Flight Route. Please check your origin and destination.")
 
             else:
-                # create and encode time-sin and time-cosine
-                def hhmm_to_minutes(hhmm):
-                    hours, minutes = map(int, hhmm.split(":"))
-                    return hours * 60 + minutes  
                 
                 df['Time'] = df['departure_time'].apply(hhmm_to_minutes)
                 df['time_sin'] = np.sin(2 * np.pi * df['Time'] / 1440)  # 1440 minutes in a day
