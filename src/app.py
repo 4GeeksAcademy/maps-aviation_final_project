@@ -321,20 +321,23 @@ def main():
     # TAB 2: Model Performance UI
     # ---------------------------
     with tab2:
-        st.header("Model Performance Visualizations")
+        st.header("Model Accuracy: 99.67%")
 
         # Create two columns for parallel display
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
 
         # Display ROC curve and feature importance images
         with col1:
-            st.subheader("ROC Curve")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "ROC.png"), use_container_width=True)
+            st.subheader("Precision-Recall Curve")
+            st.image(os.path.join(os.path.dirname(__file__), "static", "16_prec_recall.png"), use_container_width=True)
 
         with col2:
-            st.subheader("Feature Importance")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "feature_importance.png"), use_container_width=True)
-
+            st.subheader("Receiver Operating Characteristic (ROC) curve for model evaluation")
+            st.image(os.path.join(os.path.dirname(__file__), "static", "17_ROC.png"), use_container_width=True)
+        
+        with col3:
+            st.subheader("feature importances Plot using permutation importance")
+            st.image(os.path.join(os.path.dirname(__file__), "static", "13_feature_importance.png"), use_container_width=True)
         st.header("Probability Plots")
 
         # Create two columns for probability plots
@@ -342,11 +345,11 @@ def main():
 
         with col1:
             st.subheader("Calibrated Model")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "prob_plot_calib.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "12_prob_plot.png"), use_container_width=True)
 
         with col2:
             st.subheader("Optimized Model")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "prob_plot_optimized.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "15_prob_plot.png"), use_container_width=True)
 
         st.header("Calibration Plots")
 
@@ -355,11 +358,11 @@ def main():
 
         with col1:
             st.subheader("Base Model")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "calib_plot_base.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "9_calibration_plot.png"), use_container_width=True)
 
         with col2:
             st.subheader("Optimized Model")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "calib_plot_calib.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "10_calibration_plot.png"), use_container_width=True)
 
         st.header("Confusion Matrix")
 
@@ -368,15 +371,15 @@ def main():
 
         with col1:
             st.subheader("Base Model")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "test_confusion.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "8_confusion_matrix.png"), use_container_width=True)
 
         with col2:
             st.subheader("Calibrated Model")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "test_confusion_calibrated.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "11_confusion_matrix.png"), use_container_width=True)
 
         with col3:
             st.subheader("Optimized Model")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "test_confusion_optimized.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "14_confusion_matrix.png"), use_container_width=True)
 
     # ---------------------------
     # TAB 3: Data Exploration UI
@@ -389,11 +392,11 @@ def main():
 
         with col1:
             st.subheader("Incident Feature")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "incidents.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "3_bar_plot.png"), use_container_width=True)
 
         with col2:
             st.subheader("Feature Importance")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "cross-correlation-matrix.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "7_heat_map.png"), use_container_width=True)
 
         st.header("Airport Features")
 
@@ -402,15 +405,15 @@ def main():
 
         with col1:
             st.subheader("Origin Airports")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "origin_airports.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "1_count_plot.png"), use_container_width=True)
 
         with col2:
             st.subheader("Destination Airports")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "destination_airports.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "2_count_plot.png"), use_container_width=True)
 
         with col3:
             st.subheader("Incident Routes")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "incident_routes.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "4_count_plot.png"), use_container_width=True)
 
         st.header("Time Features")
 
@@ -419,11 +422,11 @@ def main():
 
         with col1:
             st.subheader("Cyclical Encoding Visualization")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "cyclical_encoding.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "5_scatter_plot.png"), use_container_width=True)
 
         with col2:
             st.subheader("Time Representation in a Circle Plot")
-            st.image(os.path.join(os.path.dirname(__file__), "static", "circle_time.png"), use_container_width=True)
+            st.image(os.path.join(os.path.dirname(__file__), "static", "6_scatter_plot.png"), use_container_width=True)
 
     # ---------------------------
     # TAB 4: Flight Route Animation UI
