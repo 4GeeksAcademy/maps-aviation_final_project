@@ -534,7 +534,7 @@ def main():
             """, unsafe_allow_html=True)
             with st.form("flight_form", clear_on_submit=True):
                 clicked = st.form_submit_button(label="START")
-                
+
             # Animate the flight
             if clicked:
                 trail_length = 5
@@ -560,7 +560,7 @@ def main():
                         get_width=3,
                     )
                     r = pdk.Deck(
-                        layers=[icon_layer, curved_layer],
+                        layers=[icon_layer, curved_layer, trail_layer, plane_layer],
                         initial_view_state=view_state,
                         map_style=map_styles[selected_style],
                         tooltip=tooltip
