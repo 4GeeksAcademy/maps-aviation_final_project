@@ -500,17 +500,65 @@ def main():
 
             # Flight animation
             chart_placeholder = st.empty()
-
+            st.markdown("""
+            <style>
+            /* Style for form container */
+            .stForm {
+                padding: 0.5rem;
+                background-color: #b1d1fa;
+                border-radius: 0.5px;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            st.markdown("""
+        <style>
+        .start-button {
+            width: 1px;
+            margin: 1rem auto;
+            background-color: #4CAF50;
+            background: linear-gradient(45deg, #1E88E5, #00BCD4);
+            color: white;
+            font-size: 2.1rem;
+            font-weight: bold;
+            padding: 1rem 2rem;
+            border-radius: 1px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .start-button:hover {
+            background: linear-gradient(45deg, #1565C0, #0097A7);
+            transform: translateY(-1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            }
+            </style>
+            """, unsafe_allow_html=True)
             with st.form("flight_form", clear_on_submit=True):
                 clicked = st.form_submit_button(label="START")
-
+                
             # Animate the flight
             if clicked:
                 trail_length = 5
                 for i in range(len(curved_path)):
                     plane_position = curved_path[i]
                     trail = curved_path[max(0, i - trail_length):i + 1]
-
+                    plane_layer = pdk.Layer(
+                        "TextLayer",
+                        data=[{"position": plane_position, "text": "✈️"}],
+                        get_position="position",
+                        get_text="text",
+                        get_size=32,
+                        get_angle=0,
+                        get_color=[0, 0, 0],
+                    )
+                    trail_layer = pdk.Layer(
+                        "PathLayer",
+                        data=[{"path": trail}],
+                        get_path="path",
+                        get_color=[50, 50, 255],
+                        width_scale=20,
+                        width_min_pixels=2,
+                        get_width=3,
+                    )
                     r = pdk.Deck(
                         layers=[icon_layer, curved_layer],
                         initial_view_state=view_state,
