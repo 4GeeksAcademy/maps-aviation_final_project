@@ -10,12 +10,13 @@ A Streamlit-based machine learning web application that predicts the risk of fli
 
 - [Overview](#-overview)
 - [Features](#-features)
-- [Model Details](#-model-details)
+- [Machine Learning Model Details](#-machine-learning-model-details)
 - [Dataset](#-dataset)
 - [Installation](#-installation)
 - [Usage](#-usage)
 - [Project Structure](#-project-structure)
 - [Live Demo](#-live-demo)
+- [Authors](#-authors)
 - [License](#-license)
 - [Contact](#-contact)
 
@@ -29,40 +30,42 @@ The app is built with **Streamlit** and integrates interactive visualizations, m
 
 ---
 
-## ✅ Features
+## 🚀 Features
 
 - 🔮 **Incident Predictor**  
-  Estimate the probability of an incident for selected airports and departure times.
+  Predict the probability of a flight incident based on selected airports and departure times.
 
 - 📈 **Model Performance**  
-  Visualize confusion matrix, ROC curve, feature importance, and accuracy metrics.
+  Visual insights into model metrics such as accuracy, confusion matrix, feature importance, and more.
 
 - 📊 **Dataset Explorer**  
-  Explore historical incident data through charts and plots.
+  Explore trends and distributions in the historical flight incident dataset through various visualizations.
 
 - 🌍 **Flight Animation**  
-  View animated flight paths between selected airports on a map.
+  View animated flight path between selected airports on a map.
 
 ---
 
-## 🧠 Model Details
+## 🧠 Machine Learning Model Details
 
 - **Algorithm**: `HistGradientBoostingClassifier` (Scikit-learn)
 - **Features Used**:
   - Origin Airport
   - Destination Airport
   - Departure Time (encoded)
-- **Preprocessing**: Label encoding for categorical variables
-- **Performance**: Accuracy ~92%, AUC ~0.91
+- **Target**: Flight Incident Occurrence (Yes/No)
+- **Encoding**: Categorical variables are encoded using pre-trained encoders
+- **Performance**: Accuracy ~99.67%, AUC ~0.99
 
 ---
 
 ## 📁 Dataset
 
-- **Source**: FAA, NTSB, and U.S. aviation data repositories
-- **Time Frame**: Last 5 years
-- **Size**: ~100,000 records
-- **Columns**: Airport codes, timestamps, incident labels
+- **Source**: [NTSB](https://www.ntsb.gov/Pages/home.aspx) and [BTS](https://www.bts.gov/browse-statistical-products-and-data/bts-publications/airline-service-quality-performance-234-time) U.S. aviation data repositories
+- **Scope**: U.S. flight incident and all flight records from the past 5 years
+- **Size**: ~600,000 records
+- **Columns**: Airport IATA codes, timestamps, and incident labels
+- **Processed**: Cleaned, encoded, and pre-processed for model training and visualization
 
 > Dataset is stored in the `data/` directory and preprocessed using `pandas`.
 
@@ -70,23 +73,32 @@ The app is built with **Streamlit** and integrates interactive visualizations, m
 
 ## 🛠️ Installation
 
-1. Clone the repository:
+### Requirements
+
+- Python 3.11+
+- pip
+
+1.Clone the repository:
+
 ```bash
-git clone https://github.com/your-username/flight-incident-risk-predictor.git
+git clone https://github.com/4GeeksAcademy/aviation_final_project.git
 cd flight-incident-risk-predictor
 ```
 
-2. Create a virtual environment and install dependencies:
+2.Create a virtual environment and install dependencies:
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
 ```
 
-3. Run the app:
+3.Run the app:
 ```bash
 streamlit run app.py
 ```
+
+---
 
 ## ▶️ Usage
 
@@ -96,70 +108,74 @@ streamlit run app.py
 
 - Explore model performance and dataset plots in other tabs.
 
-- Select airports to see a flight animation 
+- Select airports to see a flight animation on a U.S. map. 
 
+---
 
-# ✈️ Flight Incident Risk Predictor App 
+## 📁 Project Structure 
+
+flight-incident-risk-predictor/
+├── app.py
+├── models/
+│   ├── model.pkl
+├── data/
+│   ├── interim
+│       └── incidents.csv
+│       └── ontime.csv
+│   ├── processed
+│       └── combined_data.csv
+│       └── all_encoded.csv
+│       └── test_encoded.csv
+│       └── train_encoded.csv
+│   ├── raw
+│       └── incidents.csv
+│       └── ontime.csv
+├── notebooks/
+│   ├── data_acquisition.ipynb
+│   ├── data_preparation.ipynb
+│   ├── model_building.ipynb
+│   ├── app_data_preparation.ipynb
+├── requirements.txt
+├── README.md
+└── src/
+    ├── static
+        └── plots.png
+---
 
 ## 🌐 Live Demo
+
 👉 Try the App ([Live](https://madesh10-aviation-final-project.onrender.com/))
 
-# ✈️ Flight Incident Risk Predictor
+---
 
-A Streamlit web application that predicts the risk of USA flight incidents based on historical aviation data from the past 5 years. The app offers interactive visualizations and predictions powered by a machine learning model trained on flight incident data.
+## 🧑‍💻 Authors
 
+Madeshwaran Selvaraj 
+[GitHub](https://github.com/Madesh-Selvaraj) | [LinkedIn](https://www.linkedin.com/in/madeshwaran-selvaraj/)
 
-## 🚀 Features
+Dyimah Ansah 
+[GitHub](https://github.com/Dansah2) | [LinkedIn](https://www.linkedin.com/in/dyimah-ansah/)
 
-This application provides the following functionalities across four interactive tabs:
+Adam Val 
+[GitHub](https://github.com/adam6268) | [LinkedIn]()
 
-1. **Incident Predictor Based on Airports Selected**  
-   Predict the likelihood of a flight incident based on selected origin and destination airports and departure time.
-
-2. **Model Performance**  
-   Visual insights into model metrics such as accuracy, confusion matrix, feature importance, and more.
-
-3. **Data Set Plots**  
-   Explore trends and distributions in the historical flight incident dataset through various visualizations.
-
-4. **Flight Animation**  
-   Animated map visualizing the flight path between selected airports, enhancing the interpretability of predictions.
+George Perdrizet 
+[GitHub](https://github.com/gperdrizet) | [LinkedIn](https://www.linkedin.com/in/gperdrizet/)
 
 ---
 
-## 🧠 Machine Learning Model
+## 🚀 Future Work
 
-- **Model Used**: `HistGradientBoostingClassifier` from Scikit-learn
-- **Features**: Origin Airport, Destination Airport, Departure Time
-- **Target**: Flight Incident Occurrence (Yes/No)
-- **Encoding**: Categorical variables are encoded using pre-trained encoders
+- Integration of flight animation into the current model prediction.
 
----
+- real-time weather and aircraft metadata
 
-## 📊 Dataset
+- Flight route optimization based on risk scores
 
-- **Source**: FAA for open aviation incident database and NTSB for 
-- **Scope**: U.S. flight incident and all flight records from the past 5 years
-- **Processed**: Cleaned, encoded, and pre-processed for model training and visualization
+- Include more features and develop a more user-friendly map on flight travel.
 
 ---
 
-## 🛠️ Installation
+## 🤝 Contributing
 
-### Requirements
-
-- Python 3.8+
-- pip
-
-### Clone and Run Locally
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/flight-incident-risk-predictor.git
-cd flight-incident-risk-predictor
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the Streamlit app
-streamlit run app.py
+Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
