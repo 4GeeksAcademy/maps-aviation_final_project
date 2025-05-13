@@ -2,8 +2,7 @@
 
 A Streamlit-based machine learning web application that predicts the risk of flight incidents in U.S. using historical aviation data from the past five years.
 
-![App Screenshot](https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/photo.jpg)
-
+![App Screenshot](https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/photo.jpg =100x20)
 ---
 
 ## 📌 Table of Contents
