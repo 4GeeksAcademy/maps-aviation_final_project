@@ -112,7 +112,9 @@ streamlit run app.py
 
 ---
 
-## 📁 Project Structure 
+## 📁 Project Structure
+
+```
 
 flight-incident-risk-predictor/
 ├── app.py
@@ -140,6 +142,9 @@ flight-incident-risk-predictor/
 └── src/
     ├── static
         └── plots.png
+
+```
+
 ---
 
 ## 🌐 Live Demo
@@ -179,3 +184,6 @@ George Perdrizet
 ## 🤝 Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
+
+---
+
