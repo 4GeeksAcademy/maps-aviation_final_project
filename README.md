@@ -44,7 +44,7 @@ This web application addresses the gap in personalized flight risk predictions b
 
 ## 🔍 Motivation
 
-while flight safety in the U.S. was relatively stable for several years, reported [data](https://trends.google.com/trends/explore?date=today%205-y&geo=US&q=flight%20crashes&hl=en) shows an uptick in flight crashes around late 2024 to early 2025. Below graph presents a time series of weekly flight crash counts over the past five years. 
+while flight safety in the U.S. was relatively stable for several years, reported [data](https://trends.google.com/trends/explore?date=today%205-y&geo=US&q=flight%20crashes&hl=en) shows an uptick in flight crashes around late 2024 to early 2025. Below graph presents a time series of monthly flight crash counts over the past five years. 
 
 <img src="https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/5year_trend.png" alt="App Screenshot" width="600"/>
 
