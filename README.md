@@ -1,54 +1,189 @@
-# AVIATION INCIDENT PREDICTION
+# ✈️ Flight Incident Risk Predictor
 
-**Insight:**
-This project utilizes the most up-to-date data from the Department of Transportation, incorporating crashed flights and on-time flights data spanning from 1990 to 2024.
+A Streamlit-based machine learning web application that predicts the risk of flight incidents in U.S. using historical aviation data from the past five years.
 
-**Purpose:**
-Our predictive model aims to achieve the following:
-* **Enhanced Safety:** Reduce aviation accidents and incidents, ultimately saving lives and preventing injuries.
-* **Proactive Risk Management:** Enable the anticipation of potential hazards for effective mitigation and prevention, moving beyond a reactive approach.
-* **Resource Allocation:** Optimize the distribution of resources for inspections, maintenance, and training by accurately predicting high-risk periods, areas, and circumstances.
-* **Cost Reduction:** Minimize costs associated with delays, damages, legal fees, reputational damage, and most importantly, prevent the tragic loss of life.
-* **Improved Operational Efficiency:** Foster a seamless and efficient travel experience for everyone involved by minimizing disruptions and negative incidents.
+<img src="https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/photo.jpg" alt="App Screenshot" width="400" />
 
-**Installation:**
-To get started with this project:
+---
 
-1.  **Fork the Repository:** Click the "Fork" button at the top right of this page to create a copy of this repository in your GitHub account.
-2.  **Run in Codespace:** Once you've forked the repository, navigate to your forked version and click the "Code" button. From the dropdown menu, select "Create codespace on main". This will open a pre-configured development environment in your browser.
-3.  **Run [01-data_acquisition.ipynb](https://github.com/4GeeksAcademy/aviation_final_project/blob/main/src/01-data_acquisition.ipynb):** Within the Codespace environment, you will find the Explorer tab and see workspace src, click the drop down and you will see notebook 01-data_acquisition.ipynb, click the notebook and once in the notebook press run all to start acquiring and gathering the data 
-4.  **Run [02-data_preparation.ipynb](https://github.com/4GeeksAcademy/aviation_final_project/blob/main/src/02-data_preparation.ipynb)** and again press run all function and you will see the data be prepared, visualized, encoded and train-test split for modelling
-5.  **Run [03-model_building_Dyimah.ipynb](https://github.com/4GeeksAcademy/aviation_final_project/blob/main/src/03-model_building_Dyimah.ipynb)**, again press run all function and you will see the train and test data uploaded, the model we chose to use for the data, you will the model optimized and the results before and after optimization of the model
+## 📌 Table of Contents
 
+- [Overview](#-overview)
+- [Features](#-features)
+- [Machine Learning Model Details](#-machine-learning-model-details)
+- [Dataset](#-dataset)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Project Structure](#-project-structure)
+- [Live Demo](#-live-demo)
+- [Authors](#-authors)
+- [License](#-license)
+- [Contact](#-contact)
 
+---
 
-**Requirements**
+## 🔍 Overview
 
-numpy==1.26.4
-pandas==2.2.3
-scikit-learn==1.6.1
-scipy==1.15.2
-matplotlib==3.10.1
-seaborn==0.13.2
-requests==2.32.3
-access-parser==0.0.6
-beautifulsoup4==4.13.4
-streamlit==1.44.1
+This project uses a machine learning model to estimate the likelihood of flight incidents based on origin and destination airports and departure time. It provides visual insights into model performance and the historical dataset.
 
-**Model Performance Summary**
-The Aviation Incidence Prediction model achieved high performance, with around 99.7% accuracy on unseen data. It excels at correctly identifying non-incident cases (very low false positive rate). However, it has a slightly higher error rate in missing actual incident cases (around 8% false negatives).
-Attempts to optimize the model's settings didn't significantly change its overall accuracy. Further examination of the model's predictions for incident cases is important to ensure a good balance between correctly identifying true incidents and minimizing missed cases, especially given the potential impact of false negatives. 
+The app is built with **Streamlit** and integrates interactive visualizations, model evaluation metrics, and animated flight mapping.
 
+---
 
-**Data Sources:**
-Airline Service Quality Performance 234 (On-Time performance data): [https://www.bts.gov/browse-statistical-products-and-data/bts-publications/airline-service-quality-performance-234-time
+## 🚀 Features
 
-NTSB incident data: [https://data.ntsb.gov/avdata](https://data.ntsb.gov/avdata)
+- 🔮 **Incident Predictor**  
+  Predict the probability of a flight incident based on selected airports and departure times.
 
-**Contact:**
-[https://github.com/4GeeksAcademy/aviation\_final\_project](https://github.com/4GeeksAcademy/aviation_final_project)
+- 📈 **Model Performance**  
+  Visual insights into model metrics such as accuracy, confusion matrix, feature importance, and more.
 
+- 📊 **Dataset Explorer**  
+  Explore trends and distributions in the historical flight incident dataset through various visualizations.
 
+- 🌍 **Flight Animation**  
+  View animated flight path between selected airports on a map.
 
+---
 
+## 🧠 Machine Learning Model Details
+
+- **Algorithm**: `HistGradientBoostingClassifier` (Scikit-learn)
+- **Features Used**:
+  - Origin Airport
+  - Destination Airport
+  - Departure Time (encoded)
+- **Target**: Flight Incident Occurrence (Yes/No)
+- **Encoding**: Categorical variables are encoded using pre-trained encoders
+- **Performance**: Accuracy ~99.67%, AUC ~0.99
+
+---
+
+## 📁 Dataset
+
+- **Source**: [NTSB](https://www.ntsb.gov/Pages/home.aspx) and [BTS](https://www.bts.gov/browse-statistical-products-and-data/bts-publications/airline-service-quality-performance-234-time) U.S. aviation data repositories
+- **Scope**: U.S. flight incident and all flight records from the past 5 years
+- **Size**: ~600,000 records
+- **Columns**: Airport IATA codes, timestamps, and incident labels
+- **Processed**: Cleaned, encoded, and pre-processed for model training and visualization
+
+> Dataset is stored in the `data/` directory and preprocessed using `pandas`.
+
+---
+
+## 🛠️ Installation
+
+### Requirements
+
+- Python 3.11+
+- pip
+
+1.Clone the repository:
+
+```bash
+git clone https://github.com/4GeeksAcademy/aviation_final_project.git
+cd flight-incident-risk-predictor
+```
+
+2.Create a virtual environment and install dependencies:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+```
+
+3.Run the app:
+```bash
+streamlit run app.py
+```
+
+---
+
+## ▶️ Usage
+
+- Navigate to the Incident Predictor tab and select origin, destination, and departure time.
+
+- View the predicted incident risk % .
+
+- Explore model performance and dataset plots in other tabs.
+
+- Select airports to see a flight animation on a U.S. map. 
+
+---
+
+## 📁 Project Structure
+
+```
+
+flight-incident-risk-predictor/
+├── app.py
+├── models/
+│   ├── model.pkl
+├── data/
+│   ├── interim
+│       └── incidents.csv
+│       └── ontime.csv
+│   ├── processed
+│       └── combined_data.csv
+│       └── all_encoded.csv
+│       └── test_encoded.csv
+│       └── train_encoded.csv
+│   ├── raw
+│       └── incidents.csv
+│       └── ontime.csv
+├── notebooks/
+│   ├── data_acquisition.ipynb
+│   ├── data_preparation.ipynb
+│   ├── model_building.ipynb
+│   ├── app_data_preparation.ipynb
+├── requirements.txt
+├── README.md
+└── src/
+    ├── static
+        └── plots.png
+
+```
+
+---
+
+## 🌐 Live Demo
+
+👉 Try the App ([Live](https://madesh10-aviation-final-project.onrender.com/))
+
+---
+
+## 🧑‍💻 Authors
+
+Madeshwaran Selvaraj 
+[GitHub](https://github.com/Madesh-Selvaraj) | [LinkedIn](https://www.linkedin.com/in/madeshwaran-selvaraj/)
+
+Dyimah Ansah 
+[GitHub](https://github.com/Dansah2) | [LinkedIn](https://www.linkedin.com/in/dyimah-ansah/)
+
+Adam Val 
+[GitHub](https://github.com/adam6268) | [LinkedIn]()
+
+George Perdrizet 
+[GitHub](https://github.com/gperdrizet) | [LinkedIn](https://www.linkedin.com/in/gperdrizet/)
+
+---
+
+## 🚀 Future Work
+
+- Integration of flight animation into the current model prediction.
+
+- real-time weather and aircraft metadata
+
+- Flight route optimization based on risk scores
+
+- Include more features and develop a more user-friendly map on flight travel.
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to change.
+
+---
 
