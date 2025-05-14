@@ -1,6 +1,6 @@
-# <img src="https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/photo.jpg" alt="App Screenshot" width="400"/> Flight Incident Risk Predictor
+# Flight Incident Risk Predictor
 
-A Streamlit-based machine learning web application that predicts the risk of flight incidents in U.S. using historical aviation data from the past five years.
+A Streamlit-based machine learning web application that predicts the risk of flight incidents in U.S. using historical aviation data from the past five years.<img src="https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/photo.jpg" alt="App Screenshot" width="400"/>
 
 ---
 
