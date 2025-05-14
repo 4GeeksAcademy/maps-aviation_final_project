@@ -1,4 +1,4 @@
-# <img src="https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/Logo.png" alt="Logo" width="40" /> Flight Incident Risk Predictor
+# <img src="https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/Logo.png" alt="Logo" width="100" /> Flight Incident Risk Predictor
 
 A Streamlit-based machine learning web application that predicts the risk of flight incidents in U.S. using historical aviation data from the past five years.
 
