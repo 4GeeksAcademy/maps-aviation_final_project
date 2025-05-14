@@ -46,7 +46,7 @@ This web application addresses the gap in personalized flight risk predictions b
 
 while flight safety in the U.S. was relatively stable for several years, reported [data](https://trends.google.com/trends/explore?date=today%205-y&geo=US&q=flight%20crashes&hl=en) shows an uptick in flight crashes around late 2024 to early 2025. Below graph presents a time series of weekly flight crash counts over the past five years. 
 
-<img src="https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/5year_trend.png" alt="App Screenshot" width="400"/>
+<img src="https://github.com/4GeeksAcademy/Madesh10-aviation_final_project/blob/main/src/static/5year_trend.png" alt="App Screenshot" width="600"/>
 
 The flight crash counts were stable between 2020 and mid 2024 with crash count only ranging from 4 to 10. Following that, the flight crash count spiked between late 2024 and early 2025. A significant and sudden surge in flight crashes is visible with count exceeding 100 crashes per week around early 2025. This suggests a major event or systemic issue occurred during this time (e.g., regulatory lapses, mechanical failure patterns, or political administration shift causing significant changes in policy, regulations, and agency priorities).
 
