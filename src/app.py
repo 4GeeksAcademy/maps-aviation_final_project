@@ -10,8 +10,6 @@ import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
 import pydeck as pdk
-from PIL import Image
-import configuration as config
 
 # ---------------------------
 # DIRECTORY CONFIGURATION
@@ -189,7 +187,7 @@ def main():
                 text-align: center;
                 font-size: 2.5rem;
                 font-weight: bold;
-                color: #1E88E5;
+                color: #1E7EE5;
                 margin-bottom: 1rem;
                 padding: 1rem;
                 border-bottom: 2px solid #1E88E5;

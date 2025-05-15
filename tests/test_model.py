@@ -1,7 +1,4 @@
-import pytest
 import pandas as pd
-import json
-import os
 from src.app import check_route, hhmm_to_minutes
 
 def test_valid_route():
